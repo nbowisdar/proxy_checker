@@ -157,16 +157,16 @@ async def add_passwd(message: Message, state: FSMContext):
     await message.answer(msg, reply_markup=kb.admin_main_kb)
 
 
-@admin_router.message(F.text == "")
-async def update_proxy(message: Message, state: FSMContext):
-    pass
+# @admin_router.message(F.text == "")
+# async def update_proxy(message: Message, state: FSMContext):
+#     pass
 
 
-@admin_router.message(F.text == "")
-async def update_proxy(message: Message, state: FSMContext):
-    pass
+# @admin_router.message(F.text == "")
+# async def update_proxy(message: Message, state: FSMContext):
+#     pass
 
 
-@admin_router.message(F.text == "")
-async def update_proxy(message: Message, state: FSMContext):
-    pass
+# @admin_router.message(F.text == "")
+# async def update_proxy(message: Message, state: FSMContext):
+#     pass

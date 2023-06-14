@@ -18,3 +18,6 @@ user_router = Router()
 # common_router = Router()
 
 ROOT_DIR = Path(__file__).parent
+
+
+periods = {"10 мін": 600, "30 мін": 1800, "60 мін": 3600}

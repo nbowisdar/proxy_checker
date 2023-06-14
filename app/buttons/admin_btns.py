@@ -4,7 +4,13 @@ import aiogram.types as t
 from app.models import Proxy, Site
 from app import utils
 
-from .common_btn import *
+
+drop_msg = t.InlineKeyboardButton(text="↙️ Приховати", callback_data="hide")
+
+cancel_kb = t.ReplyKeyboardMarkup(
+    keyboard=[[t.KeyboardButton(text="🛑 Скасувати")]], resize_keyboard=True
+)
+
 
 admin_main_kb = ReplyKeyboardMarkup(
     keyboard=[

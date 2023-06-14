@@ -1,4 +1,5 @@
 from pprint import pprint
+from typing import NamedTuple
 import peewee as pw
 from enum import Enum
 
@@ -25,10 +26,14 @@ class BaseModel(pw.Model):
     class Meta:
         database = db
 
-    @classmethod
-    def get_fields(cls):
-        fields = cls._meta.fields
-        pprint(fields)
+    # @classmethod
+    # def get_fields(cls):
+    # fields = cls._meta.fields
+
+
+class User(BaseModel):
+    # id = pw.IntegerField()
+    username = pw.CharField(unique=True)
 
 
 class Proxy(BaseModel):
@@ -56,10 +61,23 @@ class Proxy(BaseModel):
 
 
 class Site(BaseModel):
-    name = pw.CharField(null=True)
-    link = pw.CharField(unique=True)
+    link = pw.CharField()
+    # note = pw.CharField(null=True)
+    check_period = pw.IntegerField()
+
+    user = pw.ForeignKeyField(User, backref="sites")
 
 
 def create_tables():
-    tables = [Proxy, Site]
+    tables = [User, Proxy, Site]
     db.create_tables(tables)
+
+
+########################### Data schemas ###########################
+
+
+class SiteStatus(NamedTuple):
+    status_code: bool
+    html: bool
+    ok: bool
+    url: str

@@ -12,6 +12,7 @@ from aiogram.webhook.aiohttp_server import (
 )
 
 from app.middleware.admin_only import AdminOnly
+from tests.create_proxy_test import create_first_proxy
 
 
 async def _start():
@@ -50,6 +51,7 @@ def start_webhook():
 if __name__ == "__main__":
     try:
         create_tables()
+        create_first_proxy()
         start_simple()  # run without webhook
         # start_webhook()  # run tg bot
     except KeyboardInterrupt:
