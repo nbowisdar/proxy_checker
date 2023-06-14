@@ -50,6 +50,10 @@ class Proxy(BaseModel):
             resp.append((proxy, status))
         return resp
 
+    def build_url(self) -> str:
+        # "http://36547:gyy5wFZD@185.112.12.134:2831"
+        return f"http://{self.login}:{self.password}@{self.address}:{self.port}"
+
 
 class Site(BaseModel):
     name = pw.CharField(null=True)

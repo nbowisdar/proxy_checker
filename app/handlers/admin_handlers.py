@@ -10,7 +10,7 @@ import aiogram.types as t
 from app.buttons import admin_btns as kb
 from app import crud
 from aiogram.fsm.state import State, StatesGroup
-from app import msgs
+from app import msgs, utils
 
 
 @admin_router.message(F.text.in_(["🛑 Скасувати", "↩️ Назад"]))
@@ -105,9 +105,13 @@ async def update_proxy(message: Message, state: FSMContext):
     proxy.port = port
     proxy.login = login
     proxy.password = password
-    proxy.save()
 
-    await message.reply("✅ Проксі оновленно", reply_markup=kb.admin_main_kb)
+    if await utils.check_proxy(proxy):
+        proxy.save()
+        msg = "✅ Проксі оновленно"
+    else:
+        msg = "❌ Не можу з'єднатися з сервером."
+    await message.reply(msg, reply_markup=kb.admin_main_kb)
 
 
 @admin_router.message(AddProxy.address)
@@ -122,19 +126,19 @@ async def add_port(message: Message, state: FSMContext):
     try:
         port = int(message.text)
     except ValueError:
-        await message.reply("❌ Повинно бути число", reply_markup=kb.admin_main_kb)
+        await message.answer("❌ Повинно бути число", reply_markup=kb.admin_main_kb)
         await state.clear()
         return
     await state.update_data(port=port)
     await state.set_state(AddProxy.login)
-    await message.reply("Відправте логін")
+    await message.answer("Відправте логін")
 
 
 @admin_router.message(AddProxy.login)
 async def add_username(message: Message, state: FSMContext):
     await state.update_data(login=message.text)
     await state.set_state(AddProxy.password)
-    await message.reply("Відправте пароль")
+    await message.answer("Відправте пароль")
 
 
 @admin_router.message(AddProxy.password)
@@ -142,11 +146,15 @@ async def add_passwd(message: Message, state: FSMContext):
     await state.update_data(password=message.text)
     data = await state.get_data()
     await state.clear()
-    proxy = Proxy.create(**data)
-    msg = msgs.build_proxy_msg(proxy)
-    await message.reply(
-        f"✅ Ви додали нову проксі\n{msg}", reply_markup=kb.admin_main_kb
-    )
+    proxy: Proxy = Proxy.create(**data)
+    msg_sent = await message.answer("⌛ Перевірка проксі...")
+    if await utils.check_proxy(proxy):
+        msg = "✅ Ви додали нову проксі\n" + msgs.build_proxy_msg(proxy)
+    else:
+        msg = "❌ Не можу з'єднатися з сервером."
+        proxy.delete_instance()
+    await msg_sent.delete()
+    await message.answer(msg, reply_markup=kb.admin_main_kb)
 
 
 @admin_router.message(F.text == "")
