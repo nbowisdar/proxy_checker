@@ -10,6 +10,7 @@ import aiogram.types as t
 from app.buttons import admin_btns as kb
 from app import crud
 from aiogram.fsm.state import State, StatesGroup
+from app import msgs
 
 
 @admin_router.message(F.text.in_(["🛑 Скасувати", "↩️ Назад"]))
@@ -22,7 +23,7 @@ async def cancel_handler(message: t.Message, state: FSMContext) -> None:
     await message.answer("🛑 Скасованно", reply_markup=kb.admin_main_kb)
 
 
-@admin_router.callback_query(F.text == "hide")
+@admin_router.callback_query(Text("hide"))
 async def anon(callback: t.CallbackQuery, state: FSMContext):
     current_state = await state.get_state()
     if current_state:
@@ -53,6 +54,11 @@ class AddProxy(StatesGroup):
     password = State()
 
 
+class UpdateProxy(StatesGroup):
+    proxy_id = State()
+    proxy = State()
+
+
 @admin_router.callback_query(Text(startswith="proxy"))
 async def hendle_proxy(callback: t.CallbackQuery, state: FSMContext):
     _, proxy_name = callback.data.split("|")
@@ -64,7 +70,44 @@ async def hendle_proxy(callback: t.CallbackQuery, state: FSMContext):
 
         await state.set_state(AddProxy.address)
     else:
-        await callback.message.edit_text("update / delete proxy")
+        # await callback.message.edit_text("update / delete proxy")
+        # _, proxy_name = callback.data.split("|")
+        proxy: Proxy = crud.get_proxy_by_name(proxy_name)
+        proxy_msg = msgs.build_proxy_msg(proxy)
+        await callback.message.edit_text(
+            proxy_msg, reply_markup=kb.change_proxy_inl(proxy.id)
+        )
+
+
+@admin_router.callback_query(Text(startswith="change_proxy"))
+async def change_proxy(callback: t.CallbackQuery, state: FSMContext):
+    _, action, proxy_id = callback.data.split("|")
+    await callback.message.delete()
+    if action == "delete":
+        Proxy.delete().where(Proxy.id == int(proxy_id)).execute()
+        await callback.message.answer("🗑 Видаленно", reply_markup=kb.admin_main_kb)
+
+    elif action == "update":
+        await state.set_state(UpdateProxy.proxy)
+        await state.update_data(proxy_id=proxy_id)
+        await callback.message.answer(
+            "Відправте проксі в форматі:\n*address:port:login:password*",
+            reply_markup=kb.cancel_kb,
+        )
+
+
+@admin_router.message(UpdateProxy.proxy)
+async def update_proxy(message: Message, state: FSMContext):
+    data = await state.get_data()
+    proxy: Proxy = Proxy.get_by_id(data["proxy_id"])
+    addr, port, login, password = message.text.split(":")
+    proxy.address = addr
+    proxy.port = port
+    proxy.login = login
+    proxy.password = password
+    proxy.save()
+
+    await message.reply("✅ Проксі оновленно", reply_markup=kb.admin_main_kb)
 
 
 @admin_router.message(AddProxy.address)
@@ -79,8 +122,9 @@ async def add_port(message: Message, state: FSMContext):
     try:
         port = int(message.text)
     except ValueError:
-        await message.reply("Повинно бути число", reply_markup=kb.admin_main_kb)
+        await message.reply("❌ Повинно бути число", reply_markup=kb.admin_main_kb)
         await state.clear()
+        return
     await state.update_data(port=port)
     await state.set_state(AddProxy.login)
     await message.reply("Відправте логін")
@@ -99,7 +143,10 @@ async def add_passwd(message: Message, state: FSMContext):
     data = await state.get_data()
     await state.clear()
     proxy = Proxy.create(**data)
-    await message.reply("✅ Ви додали нову проксі", reply_markup=kb.admin_main_kb)
+    msg = msgs.build_proxy_msg(proxy)
+    await message.reply(
+        f"✅ Ви додали нову проксі\n{msg}", reply_markup=kb.admin_main_kb
+    )
 
 
 @admin_router.message(F.text == "")

@@ -4,7 +4,6 @@ import aiogram.types as t
 from app.models import Proxy, Site
 from app import utils
 
-# from app import crud
 from .common_btn import *
 
 admin_main_kb = ReplyKeyboardMarkup(
@@ -16,6 +15,22 @@ admin_main_kb = ReplyKeyboardMarkup(
     ],
     resize_keyboard=True,
 )
+
+
+def change_proxy_inl(proxy_id) -> t.InlineKeyboardMarkup:
+    return t.InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                t.InlineKeyboardButton(
+                    text="♻️ Оновити", callback_data=f"change_proxy|update|{proxy_id}"
+                ),
+                t.InlineKeyboardButton(
+                    text="🗑 Видалити", callback_data=f"change_proxy|delete|{proxy_id}"
+                ),
+            ],
+            [drop_msg],  # noqa: F405
+        ]
+    )
 
 
 def get_proxy_variants_kb() -> t.InlineKeyboardButton:

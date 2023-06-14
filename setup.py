@@ -8,7 +8,7 @@ load_dotenv()
 TOKEN = os.getenv("TOKEN_BOT")
 
 
-bot = Bot(TOKEN)
+bot = Bot(TOKEN, parse_mode="MARKDOWN")
 dp = Dispatcher()
 
 # create routes
@@ -18,8 +18,3 @@ user_router = Router()
 # common_router = Router()
 
 ROOT_DIR = Path(__file__).parent
-
-
-
-
-
