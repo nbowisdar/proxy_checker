@@ -34,7 +34,7 @@ async def _run_with_testing(args: ArgumentParser):
         logger.info("Run bot with notification")
 
         async with asyncio.TaskGroup() as tg:
-            tg.create_task(testing_sites())
+            tg.create_task(testing_sites(1))
             tg.create_task(dp.start_polling(bot))
 
     else:

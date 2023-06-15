@@ -26,10 +26,6 @@ class BaseModel(pw.Model):
     class Meta:
         database = db
 
-    # @classmethod
-    # def get_fields(cls):
-    # fields = cls._meta.fields
-
 
 class User(BaseModel):
     # id = pw.IntegerField()
@@ -56,7 +52,6 @@ class Proxy(BaseModel):
         return resp
 
     def build_url(self) -> str:
-        # "http://36547:gyy5wFZD@185.112.12.134:2831"
         return f"http://{self.login}:{self.password}@{self.address}:{self.port}"
 
 
@@ -68,16 +63,33 @@ class Site(BaseModel):
     user = pw.ForeignKeyField(User, backref="sites")
 
 
+class Error(BaseModel):
+    pass
+
+
 def create_tables():
     tables = [User, Proxy, Site]
     db.create_tables(tables)
 
 
 ########################### Data schemas ###########################
+class DefaultOkFalse:
+    ok = False
+    real = False
 
 
-class SiteStatus(NamedTuple):
+class Status(NamedTuple):
     status_code: bool
     html: bool
     ok: bool
-    url: str
+    real = True
+    # proxy: Proxy | None = None
+
+
+class Result(NamedTuple):
+    user_id: int
+    link: str
+    ok: bool
+    no_proxy: Status
+    triolan: Status | None = None
+    kyivstar: Status | None = None

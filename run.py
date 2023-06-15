@@ -8,7 +8,7 @@ from aiogram.webhook.aiohttp_server import (
     SimpleRequestHandler,
     setup_application,
 )
-
+from loguru import logger
 from app.middleware.admin_only import AdminOnly
 
 

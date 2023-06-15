@@ -1,4 +1,4 @@
-from app.models import Proxy, Site, SiteStatus
+from app.models import Proxy, Site, Status, Result
 from app.utils import get_status_symbol
 
 
@@ -16,9 +16,28 @@ def build_all_sites(sites: list[Site]) -> str:
     return "\n".join(data)
 
 
-def problem_with_site(site: SiteStatus) -> str:
+def build_warning_msg(br: Result) -> str:
+    "site.com | код от. (S. 🟢, T 🔴, K 🟢) | html (S. 🟢, T 🔴, K 🟢)"
+
+    default = "❕ Вимкненно"
+    triolan, kyivstar = default, default
+
+    if br.triolan.real:
+        triolan = f"""
+{get_status_symbol(br.triolan.status_code)} Code | {get_status_symbol(br.triolan.html)} HTML
+        """
+    if br.kyivstar.real:
+        kyivstar = f"""
+{get_status_symbol(br.kyivstar.status_code)} Code | {get_status_symbol(br.kyivstar.html)} HTML
+        """
+
     return f"""
-⚠️ Site - {site.url}
-status code {get_status_symbol(site.status_code)}
-html {get_status_symbol(site.html)}
+⚠️   {br.link}
+
+No proxy:
+{get_status_symbol(br.no_proxy.status_code)} Code | {get_status_symbol(br.no_proxy.html)} HTML
+
+Triolan: {triolan}
+Kyivstar: {kyivstar}
+
 """
