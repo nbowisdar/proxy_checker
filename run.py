@@ -1,6 +1,6 @@
 from app.main import run_with_flags
 from setup import bot, dp
-from app.models import create_tables
+from app.structure.models import create_tables
 from app.handlers.admin_handlers import admin_router
 from app.handlers.user_handlers import user_router
 import asyncio

@@ -1,5 +1,7 @@
-from app.models import Proxy, Site, Status, Result
+from app.structure.models import Proxy, Site, Error
 from app.utils import get_status_symbol
+from app.structure.schemas import Status, Result
+from typing import Sequence
 
 
 def build_proxy_msg(p: Proxy) -> str:
@@ -21,7 +23,6 @@ def build_warning_msg(br: Result) -> str:
 
     default = "❕ Вимкненно"
     triolan, kyivstar = default, default
-
     if br.triolan.real:
         triolan = f"""
 {get_status_symbol(br.triolan.status_code)} Code | {get_status_symbol(br.triolan.html)} HTML
@@ -41,3 +42,9 @@ Triolan: {triolan}
 Kyivstar: {kyivstar}
 
 """
+
+
+def build_error_statistic(errors: Sequence[Error]) -> str:
+    # TODO build the right messages here
+
+    return f"Error amount - {len(errors)}"

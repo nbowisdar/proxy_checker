@@ -1,8 +1,15 @@
 from pprint import pprint
 import re
 import aiohttp
-from typing import NamedTuple, Sequence
-from app.models import DefaultOkFalse, Proxy_Variant, User, Site, Proxy, Status, Result
+from typing import Sequence
+from app.structure.models import (
+    Proxy_Variant,
+    Site,
+    Proxy,
+)
+
+from app.structure.schemas import Status, Result, DefaultOkFalse
+
 import asyncio
 
 from app.msgs import build_warning_msg

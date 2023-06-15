@@ -3,10 +3,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram.filters import Text, Command
 from aiogram import F
-from app.models import User, Site
+from app.structure.models import User, Site
 from setup import periods
 
-# from ..models import Proxy
 from setup import user_router
 from app.handlers.fsm_h.block_user import BlockUser, UnblockUser
 import aiogram.types as t
@@ -35,7 +34,14 @@ async def main(message: Message):
 class NewSite(StatesGroup):
     link = State()
     period = State()
-    # note = State()
+
+
+@user_router.message(F.text == "✍️ Зв'язок з адміністрацією")
+async def new_site(message: Message):
+    await message.answer(
+        "Написати в",
+        reply_markup=kb.ask_admin_inl,
+    )
 
 
 @user_router.message(F.text == "📜 Усі сайти")

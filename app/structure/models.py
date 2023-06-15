@@ -1,8 +1,10 @@
+import datetime
 from pprint import pprint
-from typing import NamedTuple
+from typing import NamedTuple, Sequence
 import peewee as pw
 from enum import Enum
 
+from app.structure.enums import Period
 
 db = pw.SqliteDatabase("db.sqlite3")
 
@@ -63,33 +65,30 @@ class Site(BaseModel):
     user = pw.ForeignKeyField(User, backref="sites")
 
 
-class Error(BaseModel):
-    pass
+# class DefaultOkFalse(BaseModel):
+# ok = False
+# real = False
 
 
-def create_tables():
-    tables = [User, Proxy, Site]
-    db.create_tables(tables)
-
-
-########################### Data schemas ###########################
-class DefaultOkFalse:
-    ok = False
-    real = False
-
-
-class Status(NamedTuple):
-    status_code: bool
-    html: bool
-    ok: bool
-    real = True
+class Status(BaseModel):
+    status_code = pw.BooleanField()
+    html = pw.BooleanField()
+    ok = pw.BooleanField()
+    # real = True
     # proxy: Proxy | None = None
 
 
-class Result(NamedTuple):
-    user_id: int
-    link: str
-    ok: bool
-    no_proxy: Status
-    triolan: Status | None = None
-    kyivstar: Status | None = None
+class Error(BaseModel):
+    user = pw.ForeignKeyField(User, backref="errors")
+    link = pw.CharField()
+    ok = pw.BooleanField()
+    no_proxy = pw.ForeignKeyField(Status)
+    triolan = pw.ForeignKeyField(Status, null=True)
+    kyivstar = pw.ForeignKeyField(Status, null=True)
+
+    created_at = pw.DateTimeField(default=datetime.datetime.now)
+
+
+def create_tables():
+    tables = [User, Proxy, Site, Status, Error]
+    db.create_tables(tables)

@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 import asyncio
 from setup import dp, bot
-from app.models import Proxy
+from app.structure.models import Proxy
 from app.parsing import testing_sites
 from loguru import logger
 

@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram.filters import Text, Command
 from aiogram import F
-from ..models import Proxy
+from ..structure.models import Proxy
 from setup import admin_router
 from app.handlers.fsm_h.block_user import BlockUser, UnblockUser
 import aiogram.types as t
@@ -11,6 +11,7 @@ from app.buttons import admin_btns as kb
 from app import crud
 from aiogram.fsm.state import State, StatesGroup
 from app import msgs, utils
+from app.structure.schemas import per_by_name
 
 
 @admin_router.message(F.text.in_(["🛑 Скасувати", "↩️ Назад"]))
@@ -43,7 +44,18 @@ async def proxy(message: Message):
 
 @admin_router.message(F.text == "📊 Статистика")
 async def stat(message: Message):
-    await message.answer("stat")
+    await message.answer("📊 Статистика", reply_markup=kb.statistick_btn)
+
+
+@admin_router.callback_query(Text(startswith="error_stat"))
+async def hendle_proxy(callback: t.CallbackQuery):
+    await callback.message.delete()
+    _, period_str = callback.data.split("|")
+    period = per_by_name[period_str]
+    errors = crud.get_errs_by_period(period)
+    big_msg = msgs.build_error_statistic(errors)
+    for msg in utils.divide_big_msg(big_msg):
+        await callback.message.answer(msg)
 
 
 class AddProxy(StatesGroup):

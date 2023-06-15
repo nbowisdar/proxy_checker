@@ -1,7 +1,8 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 import aiogram.types as t
 from setup import periods
+from config import admins_id
 
 drop_msg = t.InlineKeyboardButton(text="↙️ Приховати", callback_data="hide")
 
@@ -21,6 +22,13 @@ user_main_kb = ReplyKeyboardMarkup(
         [KeyboardButton(text="✍️ Зв'язок з адміністрацією")],
     ],
     resize_keyboard=True,
+)
+
+
+ask_admin_inl = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [t.InlineKeyboardButton(text="Підтримку", url=f"tg://user?id={admins_id[0]}")]
+    ]
 )
 
 

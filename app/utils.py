@@ -1,7 +1,7 @@
 from setup import bot
 import aiohttp
 from loguru import logger
-from app.models import Proxy, Site
+from app.structure.models import Proxy, Site
 from config import admins_id
 
 
@@ -35,3 +35,13 @@ async def send_warning(msg: str, user_id: int, send_to_admin=True):
     if send_to_admin:
         await bot.send_message(admins_id[0], msg)
     logger.debug("Warning was sent")
+
+
+def divide_big_msg(msg: str) -> list[str]:
+    if len(msg) < 4000:
+        return [msg]
+
+    return msg.split("\n\n")
+
+
+# def
