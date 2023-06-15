@@ -31,11 +31,12 @@ async def check_site(url: str, proxy: str) -> SiteStatus:
             return SiteStatus(status_code=status_code, html=status_html, ok=ok, url=url)
 
 
-async def testing():
+async def testing_sites(before_run_sec=100):
+    await asyncio.sleep(before_run_sec)
     while True:
         proxy: Proxy = Proxy().select().first()
 
-        for i in range(3):
+        for i in range(1, 4):
             # Select right sites
             match i:
                 case 1:
@@ -52,6 +53,7 @@ async def testing():
                     sleep_sec = 3600
 
                     sites: Sequence[Site] = Site.select()
+            print(f"Testing - {[s.link for s in sites]}\nSleep time - {sleep_sec}")
             for site in sites:
                 status = await check_site(site.link, proxy.build_url())
                 if not status.ok:
@@ -59,6 +61,14 @@ async def testing():
                     # TODO send admin to (delete false below)
                     await send_warning(msg, site.user.id, False)
             await asyncio.sleep(sleep_sec)
+
+
+async def test_time():
+    c = 0
+    while True:
+        print(c)
+        c += 1
+        await asyncio.sleep(1)
 
 
 if __name__ == "__main__":
