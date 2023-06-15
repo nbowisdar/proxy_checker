@@ -2,6 +2,7 @@ from app.structure.models import Proxy, Site, Error
 from app.utils import get_status_symbol
 from app.structure.schemas import Status, Result
 from typing import Sequence
+from datetime import datetime, date
 
 
 def build_proxy_msg(p: Proxy) -> str:
@@ -50,8 +51,13 @@ def build_error_statistic(errors: Sequence[Error]) -> str:
     base = f""
 
     units = []
-
+    cur_date = None
+    # cur_date = datetime.now().date()
     for e in errors:
+        other_date = ""
+        if e.created_at.date() != cur_date:
+            other_date = f"Дата - {e.created_at.date()}\n"
+            cur_date = e.created_at.date()
         if e.no_proxy:
             code_s = get_status_symbol(e.no_proxy.status_code)
             html_s = get_status_symbol(e.no_proxy.html)
@@ -72,9 +78,8 @@ def build_error_statistic(errors: Sequence[Error]) -> str:
             html_k = "⚠️"
         units.append(
             f"""
-{e.link}
-код от. (S. {code_s}, T {code_t}, K {code_k}) | html (S. {html_s}, T {html_t}, K {html_k})
-            
+{other_date}{e.link}
+код от. (S. {code_s}, T {code_t}, K {code_k}) | html (S. {html_s}, T {html_t}, K {html_k}) 
             """
         )
     return base + "".join(units)

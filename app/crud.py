@@ -11,7 +11,11 @@ def get_proxy_by_name(name: str) -> Proxy | None:
 
 
 def get_errs_by_period(period: Period) -> Sequence[Error]:
-    return Error.select().where(period.value < Error.created_at)
+    return (
+        Error.select()
+        .where(period.value < Error.created_at)
+        .order_by(Error.created_at.desc())
+    )
 
 
 """
