@@ -7,6 +7,7 @@ per_by_name = {
     "week": Period.week,
     "day": Period.day,
     "month": Period.month,
+    "3months": Period.three_months,
     "year": Period.year,
     "all_time": Period.all_time,
 }

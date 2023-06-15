@@ -1,7 +1,9 @@
 from pprint import pprint
 import re
+from loguru import logger
 import aiohttp
 from typing import Sequence
+from app.crud import save_error
 from app.structure.models import (
     Proxy_Variant,
     Site,
@@ -44,6 +46,11 @@ async def check_site(url: str, proxy: Proxy | None = None) -> Status:
 
 async def _handle_results(results: list[Result]):
     for bad_res in filter(lambda r: not r.ok, results):
+        # save result in db so to see it in statistics
+        try:
+            save_error(bad_res)
+        except Exception as e:
+            logger.error(e)
         msg = build_warning_msg(bad_res)
 
         await send_warning(msg, bad_res.user_id, False)

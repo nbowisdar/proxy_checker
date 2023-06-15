@@ -46,5 +46,35 @@ Kyivstar: {kyivstar}
 
 def build_error_statistic(errors: Sequence[Error]) -> str:
     # TODO build the right messages here
+    # base = f"⚠️ - {len(errors)}"
+    base = f""
 
-    return f"Error amount - {len(errors)}"
+    units = []
+
+    for e in errors:
+        if e.no_proxy:
+            code_s = get_status_symbol(e.no_proxy.status_code)
+            html_s = get_status_symbol(e.no_proxy.html)
+        else:
+            code_s = "⚠️"
+            html_s = "⚠️"
+        if e.triolan:
+            code_t = get_status_symbol(e.triolan.status_code)
+            html_t = get_status_symbol(e.triolan.html)
+        else:
+            code_t = "⚠️"
+            html_t = "⚠️"
+        if e.kyivstar:
+            code_k = get_status_symbol(e.kyivstar.status_code)
+            html_k = get_status_symbol(e.kyivstar.html)
+        else:
+            code_k = "⚠️"
+            html_k = "⚠️"
+        units.append(
+            f"""
+{e.link}
+код от. (S. {code_s}, T {code_t}, K {code_k}) | html (S. {html_s}, T {html_t}, K {html_k})
+            
+            """
+        )
+    return base + "".join(units)

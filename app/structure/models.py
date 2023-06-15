@@ -81,7 +81,6 @@ class Status(BaseModel):
 class Error(BaseModel):
     user = pw.ForeignKeyField(User, backref="errors")
     link = pw.CharField()
-    ok = pw.BooleanField()
     no_proxy = pw.ForeignKeyField(Status)
     triolan = pw.ForeignKeyField(Status, null=True)
     kyivstar = pw.ForeignKeyField(Status, null=True)
