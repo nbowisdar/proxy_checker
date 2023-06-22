@@ -112,11 +112,16 @@ async def change_proxy(callback: t.CallbackQuery, state: FSMContext):
 async def update_proxy(message: Message, state: FSMContext):
     data = await state.get_data()
     proxy: Proxy = Proxy.get_by_id(data["proxy_id"])
-    addr, port, login, password = message.text.split(":")
-    proxy.address = addr
-    proxy.port = port
-    proxy.login = login
-    proxy.password = password
+    try:
+        addr, port, login, password = message.text.split(":")
+        proxy.address = addr
+        proxy.port = int(port)
+        proxy.login = login
+        proxy.password = password
+    except ValueError:
+        await message.reply("❌ Не вірний формат!", reply_markup=kb.admin_main_kb)
+        await state.clear()
+        return
 
     if await utils.check_proxy(proxy):
         proxy.save()
