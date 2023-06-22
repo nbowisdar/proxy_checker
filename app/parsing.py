@@ -84,7 +84,7 @@ async def check_sites(sites: Sequence[Site]):
                 ok=ok,
             )
         )
-    bad_results = filter(lambda r: not r.ok, results)
+    bad_results = list(filter(lambda r: not r.ok, results))
     if not bad_results:
         logger.debug("Everythins is okay")
         return True
