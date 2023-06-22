@@ -51,7 +51,7 @@ async def check_now(message: Message):
     sites: Sequence[Site] = Site.select().where(Site.check_period == 600)
     try:
         if await check_sites(sites):
-            await message.answer("☑️ Усі сайти перевіренно!")
+            await message.answer("☑️ Усі сайти працюють!")
     except Exception as e:
         await message.answer(str(e))
 

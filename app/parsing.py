@@ -54,7 +54,7 @@ async def _handle_results(bad_results: list[Result]):
         except Exception as e:
             logger.error(e)
         msg = build_warning_msg(bad_res)
-
+        logger.debug(f"try send message - {msg}")
         await send_warning(msg, user_id=bad_res.user_id, send_to_admin=False)
 
 
@@ -86,8 +86,10 @@ async def check_sites(sites: Sequence[Site]):
         )
     bad_results = filter(lambda r: not r.ok, results)
     if not bad_results:
+        logger.debug("Everythins is okay")
         return True
     else:
+        logger.debug(f"Bad results - {len(bad_results)}")
         await _handle_results(bad_results)
 
 
