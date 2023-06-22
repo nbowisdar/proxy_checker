@@ -32,20 +32,22 @@ async def check_site(url: str, proxy: Proxy | None = None) -> Status:
         proxy_url = None
         if proxy:
             proxy_url = proxy.build_url()
+        try:
+            async with session.get(url, proxy=proxy_url) as resp:
+                if resp.status == 200:
+                    status_code = True
+                else:
+                    return Status(status_code=False, html=False)
+                html = await resp.text()
+                status_html = _check_html_title(html)
+                ok = status_code and status_html
+                return Status(status_code=status_code, html=status_html, ok=ok)
+        except aiohttp.client_exceptions.ClientHttpProxyError:
+            raise Exception(f"⚠️ Не можу приєднатися до проксі *{proxy.name}*")
 
-        async with session.get(url, proxy=proxy_url) as resp:
-            if resp.status == 200:
-                status_code = True
-            else:
-                return Status(status_code=False, html=False)
-            html = await resp.text()
-            status_html = _check_html_title(html)
-            ok = status_code and status_html
-            return Status(status_code=status_code, html=status_html, ok=ok)
 
-
-async def _handle_results(results: list[Result]):
-    for bad_res in filter(lambda r: not r.ok, results):
+async def _handle_results(bad_results: list[Result]):
+    for bad_res in bad_results:
         # save result in db so to see it in statistics
         try:
             save_error(bad_res)
@@ -53,7 +55,40 @@ async def _handle_results(results: list[Result]):
             logger.error(e)
         msg = build_warning_msg(bad_res)
 
-        await send_warning(msg, bad_res.user_id, False)
+        await send_warning(msg, user_id=bad_res.user_id, send_to_admin=False)
+
+
+async def check_sites(sites: Sequence[Site]):
+    results: list[Result] = []
+
+    for site in sites:
+        no_proxy = await check_site(site.link)
+
+        triolan = DefaultOkFalse()
+        kyivstar = DefaultOkFalse()
+
+        for proxy in Proxy().select():
+            if proxy.name == Proxy_Variant.TRIOLAN.value:
+                triolan = await check_site(site.link, proxy)
+            elif proxy.name == Proxy_Variant.KYIVSTAR.value:
+                kyivstar = await check_site(site.link, proxy)
+
+        ok = all([no_proxy.ok, triolan.ok, kyivstar.ok])
+        results.append(
+            Result(
+                user_id=site.user.id,
+                link=site.link,
+                no_proxy=no_proxy,
+                triolan=triolan,
+                kyivstar=kyivstar,
+                ok=ok,
+            )
+        )
+    bad_results = filter(lambda r: not r.ok, results)
+    if not bad_results:
+        return True
+    else:
+        await _handle_results(bad_results)
 
 
 async def testing_sites(before_run_sec=100):
@@ -76,34 +111,13 @@ async def testing_sites(before_run_sec=100):
                     sleep_sec = 3600
 
                     sites: Sequence[Site] = Site.select()
-            print(f"Testing - {[s.link for s in sites]}\nSleep time - {sleep_sec}")
-            results: list[Result] = []
-
-            for site in sites:
-                no_proxy = await check_site(site.link)
-
-                triolan = DefaultOkFalse()
-                kyivstar = DefaultOkFalse()
-
-                for proxy in Proxy().select():
-                    if proxy.name == Proxy_Variant.TRIOLAN.value:
-                        triolan = await check_site(site.link, proxy)
-                    elif proxy.name == Proxy_Variant.KYIVSTAR.value:
-                        kyivstar = await check_site(site.link, proxy)
-
-                ok = all([no_proxy.ok, triolan.ok, kyivstar.ok])
-                results.append(
-                    Result(
-                        user_id=site.user.id,
-                        link=site.link,
-                        no_proxy=no_proxy,
-                        triolan=triolan,
-                        kyivstar=kyivstar,
-                        ok=ok,
-                    )
-                )
-            await _handle_results(results)
             await asyncio.sleep(sleep_sec)
+            print(f"Testing - {[s.link for s in sites]}\nSleep time - {sleep_sec}")
+            try:
+                await check_sites(sites)
+
+            except Exception as e:
+                await send_warning(str(e), send_to_admin=True)
 
 
 """ url: str
@@ -121,5 +135,5 @@ async def test_time():
         await asyncio.sleep(1)
 
 
-if __name__ == "__main__":
-    asyncio.run(testing())
+# if __name__ == "__main__":
+# asyncio.run(testing())

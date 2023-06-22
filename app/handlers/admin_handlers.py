@@ -54,8 +54,11 @@ async def hendle_proxy(callback: t.CallbackQuery):
     period = per_by_name[period_str]
     errors = crud.get_errs_by_period(period)
     big_msg = msgs.build_error_statistic(errors)
-    for msg in utils.divide_big_msg(big_msg):
-        await callback.message.answer(msg)
+    if big_msg:
+        for msg in utils.divide_big_msg(big_msg):
+            await callback.message.answer(msg)
+    else:
+        await callback.message.answer("Поки що немає статистики")
 
 
 class AddProxy(StatesGroup):

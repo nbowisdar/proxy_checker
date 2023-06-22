@@ -30,10 +30,12 @@ async def check_proxy(proxy) -> bool:
         return False
 
 
-async def send_warning(msg: str, user_id: int, send_to_admin=True):
-    await bot.send_message(user_id, msg)
+async def send_warning(msg: str, *, user_id: int | None = None, send_to_admin=True):
+    if user_id:
+        await bot.send_message(user_id, msg)
     if send_to_admin:
-        await bot.send_message(admins_id[0], msg)
+        for a_id in admins_id:
+            await bot.send_message(a_id, msg)
     logger.debug("Warning was sent")
 
 

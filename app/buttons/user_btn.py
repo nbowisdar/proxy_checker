@@ -19,7 +19,10 @@ user_main_kb = ReplyKeyboardMarkup(
             KeyboardButton(text="📝 Додати сайт"),
             KeyboardButton(text="📜 Усі сайти"),
         ],
-        [KeyboardButton(text="✍️ Зв'язок з адміністрацією")],
+        [
+            KeyboardButton(text="✍️ Зв'язок з адміністрацією"),
+            KeyboardButton(text="✔️ Перевірити зараз"),
+        ],
     ],
     resize_keyboard=True,
 )

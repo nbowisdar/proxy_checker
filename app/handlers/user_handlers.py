@@ -1,8 +1,10 @@
 from pprint import pprint
+from typing import Sequence
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram.filters import Text, Command
 from aiogram import F
+from app.parsing import check_sites
 from app.structure.models import User, Site
 from setup import periods
 
@@ -37,15 +39,25 @@ class NewSite(StatesGroup):
 
 
 @user_router.message(F.text == "✍️ Зв'язок з адміністрацією")
-async def new_site(message: Message):
+async def ask_support(message: Message):
     await message.answer(
         "Написати в",
         reply_markup=kb.ask_admin_inl,
     )
 
 
+@user_router.message(F.text == "✔️ Перевірити зараз")
+async def check_now(message: Message):
+    sites: Sequence[Site] = Site.select().where(Site.check_period == 600)
+    try:
+        if await check_sites(sites):
+            return "☑️ Усі сайти перевіренно!"
+    except Exception as e:
+        await message.answer(str(e))
+
+
 @user_router.message(F.text == "📜 Усі сайти")
-async def new_site(message: Message):
+async def all_sites(message: Message):
     sites = Site.select().where(Site.user == message.from_user.id)
     msg = msgs.build_all_sites(sites)
     await message.answer(msg)
