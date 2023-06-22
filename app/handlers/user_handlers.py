@@ -49,10 +49,9 @@ async def ask_support(message: Message):
 @user_router.message(F.text == "✔️ Перевірити зараз")
 async def check_now(message: Message):
     sites: Sequence[Site] = Site.select().where(Site.check_period == 600)
-    print("1")
     try:
         if await check_sites(sites):
-            return "☑️ Усі сайти перевіренно!"
+            await message.answer("☑️ Усі сайти перевіренно!")
     except Exception as e:
         await message.answer(str(e))
 

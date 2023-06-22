@@ -34,9 +34,9 @@ def _save_status(status: schemas.Status) -> Status:
 
 
 def save_error(r: schemas.Result):
-    pprint(r.no_proxy.dict())
-    pprint(r.triolan.dict())
-    pprint(r.kyivstar.dict())
+    # pprint(r.no_proxy.dict())
+    # pprint(r.triolan.dict())
+    # pprint(r.kyivstar.dict())
     with db.atomic():
         no_proxy = _save_status(r.no_proxy)
         triolan = _save_status(r.triolan)
