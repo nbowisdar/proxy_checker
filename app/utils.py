@@ -16,7 +16,7 @@ url = "https://www.google.com/"
 
 async def _check_proxy(proxy: Proxy) -> bool:
     async with aiohttp.ClientSession() as session:
-        async with session.get(url, proxy=proxy.get_proxy()) as response:
+        async with session.get(url, proxy=proxy.build_proxy_url()) as response:
             if response.status != 200:
                 raise Exception("Wrong status code")
 

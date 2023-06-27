@@ -32,7 +32,7 @@ async def check_site(url: str, proxy: Proxy | None = None) -> Status:
         proxy = None
         if proxy:
             # proxy_url = proxy.build_url()
-            proxy = proxy.get_proxy()
+            proxy = proxy.build_proxy_url()
         try:
             async with session.get(url, proxy=proxy) as resp:
                 if resp.status == 200:
