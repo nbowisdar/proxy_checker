@@ -56,6 +56,10 @@ class Proxy(BaseModel):
     def build_url(self) -> str:
         return f"http://{self.login}:{self.password}@{self.address}:{self.port}"
 
+    def get_proxy(self) -> dict:
+        url = self.build_url()
+        return {"http": url, "https": url}
+
 
 class Site(BaseModel):
     link = pw.CharField()

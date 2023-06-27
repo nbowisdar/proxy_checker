@@ -74,7 +74,7 @@ async def new_site(message: Message, state: FSMContext):
 @user_router.message(NewSite.link)
 async def new_link(message: Message, state: FSMContext):
     link = message.text
-    if "https://" not in link:
+    if "https://" not in link and "http://" not in link:
         await message.reply(
             "🔴 Посилання не містить *http://*", reply_markup=kb.user_main_kb
         )

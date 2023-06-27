@@ -29,11 +29,12 @@ def _check_html_title(html_code):
 
 async def check_site(url: str, proxy: Proxy | None = None) -> Status:
     async with aiohttp.ClientSession() as session:
-        proxy_url = None
+        proxy = None
         if proxy:
-            proxy_url = proxy.build_url()
+            # proxy_url = proxy.build_url()
+            proxy = proxy.get_proxy()
         try:
-            async with session.get(url, proxy=proxy_url) as resp:
+            async with session.get(url, proxy=proxy) as resp:
                 if resp.status == 200:
                     status_code = True
                 else:
