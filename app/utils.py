@@ -1,3 +1,4 @@
+import aiogram
 from setup import bot
 import aiohttp
 from loguru import logger
@@ -32,10 +33,16 @@ async def check_proxy(proxy: Proxy) -> bool:
 
 async def send_warning(msg: str, *, user_id: int | None = None, send_to_admin=True):
     if user_id:
-        await bot.send_message(user_id, msg)
+        try:
+            await bot.send_message(user_id, msg)
+        except aiogram.exceptions.TelegramForbiddenError:
+            pass
     if send_to_admin:
         for a_id in admins_id:
-            await bot.send_message(a_id, msg)
+            try:
+                await bot.send_message(a_id, msg)
+            except aiogram.exceptions.TelegramForbiddenError:
+                pass
     logger.debug("Warning was sent")
 
 

@@ -28,21 +28,30 @@ def _check_html_title(html_code):
 
 
 async def check_site(url: str, proxy: Proxy | None = None) -> Status:
+    print("1")
     async with aiohttp.ClientSession() as session:
-        proxy = None
         if proxy:
+            logger.debug(f"Checking {proxy.name}")
+
             # proxy_url = proxy.build_url()
             proxy = proxy.build_proxy_url()
+        else:
+            logger.debug(f"Checking without proxy")
+
         try:
             async with session.get(url, proxy=proxy) as resp:
                 if resp.status == 200:
                     status_code = True
                 else:
-                    return Status(status_code=False, html=False)
+                    return Status(status_code=False, html=False, ok=False)
                 html = await resp.text()
                 status_html = _check_html_title(html)
                 ok = status_code and status_html
-                return Status(status_code=status_code, html=status_html, ok=ok)
+                res = Status(status_code=status_code, html=status_html, ok=ok)
+                logger.debug(
+                    f"Results - code-{res.status_code} html-{res.html}",
+                )
+                return res
         except aiohttp.client_exceptions.ClientHttpProxyError:
             raise Exception(f"⚠️ Не можу приєднатися до проксі *{proxy.name}*")
 
@@ -61,6 +70,7 @@ async def _handle_results(bad_results: list[Result]):
 
 async def check_sites(sites: Sequence[Site]):
     results: list[Result] = []
+    print(len(sites))
 
     for site in sites:
         no_proxy = await check_site(site.link)

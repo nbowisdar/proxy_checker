@@ -4,6 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram.filters import Text, Command
 from aiogram import F
+from loguru import logger
 from app.parsing import check_sites
 from app.structure.models import User, Site
 from setup import periods
@@ -48,7 +49,8 @@ async def ask_support(message: Message):
 
 @user_router.message(F.text == "✔️ Перевірити зараз")
 async def check_now(message: Message):
-    sites: Sequence[Site] = Site.select().where(Site.check_period == 600)
+    # sites: Sequence[Site] = Site.select().where(Site.check_period == 600)
+    sites: Sequence[Site] = Site.select()
     try:
         if await check_sites(sites):
             await message.answer("☑️ Усі сайти працюють!")
