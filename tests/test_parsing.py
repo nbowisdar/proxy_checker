@@ -1,7 +1,14 @@
-x = ["1", 2, 3, "4", "error"]
+from loguru import logger
 
 
-def test_handle_results():
-    errors: list[str] = []
-    y = filter(lambda r: type(r) == int, x)
-    assert list(y) == [2, 3]
+logger.add("logs.log")
+
+
+@logger.catch(level="CRITICAL", message="An error caught in test()")
+def test(x):
+    50 / x
+
+
+test(0)
+
+print("next")

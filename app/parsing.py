@@ -28,17 +28,17 @@ def _check_html_title(html_code):
 
 
 async def check_site(url: str, proxy: Proxy | None = None) -> Status:
-    print("1")
     async with aiohttp.ClientSession() as session:
         if proxy:
-            logger.debug(f"Checking {proxy.name}")
+            logger.debug(f"Checking {proxy.name} | Url: {url}")
 
             # proxy_url = proxy.build_url()
             proxy = proxy.build_proxy_url()
         else:
-            logger.debug(f"Checking without proxy")
+            logger.debug(f"Checking without proxy | Url: {url}")
 
         try:
+            print(proxy)
             async with session.get(url, proxy=proxy) as resp:
                 if resp.status == 200:
                     status_code = True
@@ -52,8 +52,14 @@ async def check_site(url: str, proxy: Proxy | None = None) -> Status:
                     f"Results - code-{res.status_code} html-{res.html}",
                 )
                 return res
-        except aiohttp.client_exceptions.ClientHttpProxyError:
-            raise Exception(f"⚠️ Не можу приєднатися до проксі *{proxy.name}*")
+        except aiohttp.client_exceptions.ClientHttpProxyError as e:
+            logger.error(f"{e}| proxy {proxy} | url {url}")
+            return Status(status_code=False, html=False, ok=False)
+
+            # if type(proxy) == str:
+            #     pass
+            # raise Exception(f"⚠️ Не можу приєднатися до проксі *{proxy}*")
+            # raise Exception(f"⚠️ Не можу приєднатися до проксі *{proxy.name}*")
 
 
 async def _handle_results(bad_results: list[Result]):
@@ -64,13 +70,11 @@ async def _handle_results(bad_results: list[Result]):
         except Exception as e:
             logger.error(e)
         msg = build_warning_msg(bad_res)
-        logger.debug(f"try send message - {msg}")
         await send_warning(msg, user_id=bad_res.user_id, send_to_admin=False)
 
 
 async def check_sites(sites: Sequence[Site]):
     results: list[Result] = []
-    print(len(sites))
 
     for site in sites:
         no_proxy = await check_site(site.link)
@@ -80,10 +84,13 @@ async def check_sites(sites: Sequence[Site]):
 
         for proxy in Proxy().select():
             if proxy.name == Proxy_Variant.TRIOLAN.value:
-                triolan = await check_site(site.link, proxy)
+                res = await check_site(site.link, proxy)
+                if res:
+                    triolan = res
             elif proxy.name == Proxy_Variant.KYIVSTAR.value:
-                kyivstar = await check_site(site.link, proxy)
-
+                res = await check_site(site.link, proxy)
+                if res:
+                    kyivstar = res
         ok = all([no_proxy.ok, triolan.ok, kyivstar.ok])
         results.append(
             Result(

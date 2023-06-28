@@ -49,13 +49,14 @@ async def ask_support(message: Message):
 
 @user_router.message(F.text == "✔️ Перевірити зараз")
 async def check_now(message: Message):
-    # sites: Sequence[Site] = Site.select().where(Site.check_period == 600)
+    msg = await message.answer("⏳ Йде перевірка...")
     sites: Sequence[Site] = Site.select()
-    try:
-        if await check_sites(sites):
-            await message.answer("☑️ Усі сайти працюють!")
-    except Exception as e:
-        await message.answer(str(e))
+    # try:
+    if await check_sites(sites):
+        await msg.edit_text("☑️ Усі сайти працюють!", reply_markup=kb.user_main_kb)
+
+    # except Exception as e:
+    # await message.answer(str(e))
 
 
 @user_router.message(F.text == "📜 Усі сайти")
