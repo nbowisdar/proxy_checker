@@ -46,11 +46,35 @@ async def send_warning(msg: str, *, user_id: int | None = None, send_to_admin=Tr
     logger.debug("Warning was sent")
 
 
-def divide_big_msg(msg: str) -> list[str]:
-    if len(msg) < 4000:
-        return [msg]
+# def divide_big_msg(msg: str) -> list[str]:
+def divide_big_msg(text, max_length=4096) -> list[str]:
+    """
+    Divides a long message into smaller chunks suitable for Telegram.
 
-    return msg.split("\n\n")
+    Args:
+        text (str): The long message to be divided.
+        max_length (int): Maximum length of each chunk (default: 4096).
+
+    Returns:
+        list: A list of message chunks.
+    """
+    chunks = []
+    if len(text) <= max_length:
+        # If the message is already within the maximum length, return it as is
+        chunks.append(text)
+    else:
+        # Divide the message into chunks of maximum length
+        while len(text) > 0:
+            if len(text) <= max_length:
+                chunks.append(text)
+                break
+            chunk = text[:max_length]
+            last_space = chunk.rfind(" ")
+            if last_space != -1:
+                chunk = chunk[:last_space]
+            chunks.append(chunk)
+            text = text[len(chunk) :].lstrip()
+    return chunks
 
 
 # def

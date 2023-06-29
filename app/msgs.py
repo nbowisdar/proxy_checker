@@ -1,3 +1,6 @@
+from pprint import pprint
+
+from loguru import logger
 from app.structure.models import Proxy, Site, Error
 from app.utils import get_status_symbol
 from app.structure.schemas import Status, Result
@@ -56,7 +59,8 @@ def build_error_statistic(errors: Sequence[Error]) -> str:
     for e in errors:
         other_date = ""
         if e.created_at.date() != cur_date:
-            other_date = f"Дата - {e.created_at.date()}\n"
+            pref = "---------------------------\n"
+            other_date = f"{pref}Дата - {e.created_at.date()}\n"
             cur_date = e.created_at.date()
         if e.no_proxy:
             code_s = get_status_symbol(e.no_proxy.status_code)
@@ -76,10 +80,11 @@ def build_error_statistic(errors: Sequence[Error]) -> str:
         else:
             code_k = "⚠️"
             html_k = "⚠️"
-        units.append(
-            f"""
+
+        text = f"""
 {other_date}{e.link}
 код от. (S. {code_s}, T {code_t}, K {code_k}) | html (S. {html_s}, T {html_t}, K {html_k}) 
             """
-        )
+        if text not in units:
+            units.append(text)
     return base + "".join(units)

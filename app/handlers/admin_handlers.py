@@ -3,6 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram.filters import Text, Command
 from aiogram import F
+from loguru import logger
 from ..structure.models import Proxy
 from setup import admin_router
 from app.handlers.fsm_h.block_user import BlockUser, UnblockUser
@@ -53,10 +54,13 @@ async def hendle_proxy(callback: t.CallbackQuery):
     _, period_str = callback.data.split("|")
     period = per_by_name[period_str]
     errors = crud.get_errs_by_period(period)
+    # limit_errors = crud.get_one_res_per_day(errors)
+
     big_msg = msgs.build_error_statistic(errors)
     if big_msg:
         for msg in utils.divide_big_msg(big_msg):
-            await callback.message.answer(msg)
+            if msg:
+                await callback.message.answer(msg)
     else:
         await callback.message.answer("Поки що немає статистики")
 
