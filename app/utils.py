@@ -42,7 +42,7 @@ async def send_warning(msg: str, *, user_id: int | None = None, send_to_admin=Tr
             try:
                 await bot.send_message(a_id, msg)
             except aiogram.exceptions.TelegramForbiddenError:
-                pass
+                logger.error(f"Admin blocks bot {a_id}")
     logger.debug("Warning was sent")
 
 
