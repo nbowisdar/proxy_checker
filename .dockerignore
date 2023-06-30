@@ -1,0 +1,11 @@
+venv/
+.venv/
+pipenv/
+.pipenv/
+Pipfile
+Pipfile.lock
+requirements.txt
+__pycache__
+*.pyc
+.pytest_cache
+.coverage
