@@ -1,0 +1,8 @@
+version: "3"
+
+services:
+  proxy:
+    image: proxy
+    volumes:
+      - ./db.sqlite3:/db.sqlite3
+    command: ["python", "run.py", "--notify_problems"]

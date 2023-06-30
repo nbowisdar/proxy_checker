@@ -2,7 +2,7 @@ FROM python:3.11.4-alpine3.17
 
 WORKDIR /app
 
-COPY requitements.txt .
+COPY requirements.txt .
 
 RUN pip install --no-cache-dir aiogram --pre
 RUN pip install --no-cache-dir -r requirements.txt
